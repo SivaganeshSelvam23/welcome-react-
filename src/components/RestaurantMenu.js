@@ -1,22 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { MENU_URL } from "../utils/constants";
+import useRestaurantMenu from "../Hooks/useRestaurantMenu";
+import RestaurantCategory from "./RestaurantCategory";
 import Shimmer from "./Shimmer";
 const RestaurantMenu = () => {
-  const [resInfo, setResInfo] = useState(null);
+  const [showIndex, setShowIndex] = useState(0);
   const { resID } = useParams();
-  useEffect(() => {
-    fetchResMenu();
-  }, []);
-
-  const fetchResMenu = async () => {
-    const data = await fetch(`${MENU_URL}${resID}`);
-
-    const json = await data.json();
-
-    setResInfo(json?.data);
+  const resInfo = useRestaurantMenu(resID);
+  console.log("showIndex:", showIndex);
+  const handleCategoryClick = (index) => {
+    setShowIndex((prevIndex) => (prevIndex === index ? null : index));
   };
-
   if (resInfo === null) return <Shimmer />;
 
   const {
@@ -30,31 +24,39 @@ const RestaurantMenu = () => {
 
   const { itemCards } =
     resInfo?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards[2]?.card?.card;
-  console.log("dasd", resInfo);
+
+  const categories =
+    resInfo?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+      (c) =>
+        c.card?.card?.["@type"] ===
+        "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+    );
 
   return (
-    <div className="menu">
-      <h1>{name}</h1>
-      <div className="res-infocontainer">
-        <h3>
+    <div className="max-w-[800px] min-w-[800px] my-10 mx-auto">
+      <h1 className="text-3xl font-medium mb-5">{name}</h1>
+      <div className="border-2 border-solid rounded-xl p-5 shadow-xl ">
+        <h3 className="text-lg font-medium mb-2">
           ⭐{avgRating} {`(${totalRatingsString})`} . {costForTwoMessage}
         </h3>
-        <h4 style={{ color: "orange" }}>{cuisines.join(", ")}</h4>
-        <h4>Outlet: {areaName}</h4>
+        <h4 className="mb-2 ml-6 text-orange-500 font-medium">
+          {cuisines.join(", ")}
+        </h4>
+        <h4 className="ml-6 font-medium">Outlet: {areaName}</h4>
       </div>
-      <h2>Menu</h2>
-      <ul>
-        {itemCards.map((menu) => (
-          <div key={menu?.card?.info?.id}>
-            <li>{menu?.card?.info?.name}</li>
-            <p>
-              Rs.
-              {(menu?.card?.info?.defaultPrice || menu?.card?.info?.price) /
-                100}
-            </p>
-          </div>
+      <div className="text-center my-10 text-xl font-semibold">
+        <h2>🧾 MENU 🧾</h2>
+      </div>
+      <div className="category">
+        {categories.map((category, index) => (
+          <RestaurantCategory
+            key={index}
+            data={category.card.card}
+            show={index === showIndex}
+            changeIndex={() => handleCategoryClick(index)}
+          />
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

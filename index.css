@@ -1,5 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Roboto&display=swap");
-body {
+/* @import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Roboto&display=swap"); */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* body {
   font-family: "Montserrat", sans-serif;
   margin: 0;
   padding: 0;
@@ -81,4 +85,4 @@ body {
   to {
     background-position-x: 0%;
   }
-}
+} */
